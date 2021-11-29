@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Grabber</string>
+    <string name="title_activity_main">Grabber</string>
+    <string name="title_map">Térkép</string>
+    <string name="title_list">Lista</string>
+    <string name="title_settings">Beállítások</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="lblItemName">Termék neve:</string>
+    <string name="btnOk">OK</string>
+    <string name="btnCancel">Mégse</string>
+
+</resources>
