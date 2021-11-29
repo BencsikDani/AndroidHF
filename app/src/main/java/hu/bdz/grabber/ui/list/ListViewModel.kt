@@ -23,7 +23,9 @@ class ListViewModel : ViewModel() {
         val itemDao = GrabberApplication.itemDatabase.itemDao()
         repository = Repository(itemDao)
         allItems = repository.getAllItems()
-        itemCount = allItems.value?.size ?: 0
+        viewModelScope.launch {
+            itemCount = repository.getItemCount()
+        }
     }
 
     fun getItem(id: Int)

@@ -19,6 +19,10 @@ class Repository(private val itemDao: ItemDao) {
             }
     }
 
+    suspend fun getItemCount() = withContext(Dispatchers.IO) {
+        itemDao.getItemCount()
+    }
+
     suspend fun getItem(id: Int) = withContext(Dispatchers.IO) {
         itemDao.getItemById(id)?.toDomainModel()
     }

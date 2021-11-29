@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import hu.bdz.grabber.R
@@ -26,7 +25,9 @@ class ListFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         listViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
-        //listViewModel.allItems.observe(viewLifecycleOwner, { adapter.notifyDataSetChanged() })
+        listViewModel.allItems.observe(viewLifecycleOwner, { items ->
+            adapter.submitList(items)
+        })
 
         _binding = FragmentListBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -34,7 +35,7 @@ class ListFragment : Fragment() {
         setupRecyclerView()
 
         binding.btnAdd.setOnClickListener {
-            AddFragmet(adapter, listViewModel).show(childFragmentManager, AddFragmet.TAG)
+            AddFragmet(listViewModel).show(childFragmentManager, AddFragmet.TAG)
         }
 
         return root
@@ -47,7 +48,7 @@ class ListFragment : Fragment() {
 
     private fun setupRecyclerView()
     {
-        adapter = ListRecyclerAdapter(listViewModel)
+        adapter = ListRecyclerAdapter()
         binding.root.findViewById<RecyclerView>(R.id.list_recycler_view).adapter = adapter
     }
 }

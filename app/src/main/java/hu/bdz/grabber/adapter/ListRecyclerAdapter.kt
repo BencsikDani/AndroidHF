@@ -2,23 +2,25 @@ package hu.bdz.grabber.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import hu.bdz.grabber.databinding.LayoutListItemBinding
 import hu.bdz.grabber.model.ListItem
-import hu.bdz.grabber.ui.list.ListViewModel
 
-class ListRecyclerAdapter(val listViewModel: ListViewModel) : RecyclerView.Adapter<ListRecyclerAdapter.ViewHolder>()
+class ListRecyclerAdapter : ListAdapter<ListItem, ListRecyclerAdapter.ViewHolder>(itemCallback)
 {
-    //private var itemList = emptyList<ListItem>()
-    //private lateinit var itemList: MutableList<ListItem>
+    companion object{
+        object itemCallback : DiffUtil.ItemCallback<ListItem>(){
+            override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+                return oldItem.id == newItem.id
+            }
 
-    var itemList = mutableListOf(
-        ListItem(1, "Egy"),
-        ListItem(2, "Kettő"),
-        ListItem(3, "Három"),
-        ListItem(4, "Négy"),
-        ListItem(5, "Öt")
-    )
+            override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+                return oldItem == newItem
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
     {
@@ -27,31 +29,12 @@ class ListRecyclerAdapter(val listViewModel: ListViewModel) : RecyclerView.Adapt
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        listViewModel.getItem(position)
-        val currentItem = listViewModel.returnedItem.value
-        holder.tvText.text = currentItem?.text
-    }
-
-    override fun getItemCount(): Int {
-//        listViewModel.getAllItems()
-//        return listViewModel.allItems.value?.size!!
-        return 2
+        val currentItem = this.getItem(position)
+        holder.tvText.text = currentItem.id.toString() + ". - " + currentItem.text
     }
 
     inner class ViewHolder(val binding: LayoutListItemBinding) : RecyclerView.ViewHolder(binding.root)
     {
         var tvText = binding.itemText
-    }
-
-    public fun addItem(item: ListItem)
-    {
-        itemList.add(item)
-        notifyItemInserted(itemList.lastIndex)
-    }
-
-    private fun deleteItem(position: Int)
-    {
-        itemList.removeAt(position)
-        notifyItemRemoved(position)
     }
 }

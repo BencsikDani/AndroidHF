@@ -11,7 +11,7 @@ import hu.bdz.grabber.databinding.FragmentAddBinding
 import hu.bdz.grabber.model.ListItem
 import kotlin.random.Random
 
-class AddFragmet(val adapter: ListRecyclerAdapter, val listViewModel: ListViewModel): DialogFragment()
+class AddFragmet(val listViewModel: ListViewModel): DialogFragment()
 {
     private lateinit var binding: FragmentAddBinding
 
@@ -32,10 +32,9 @@ class AddFragmet(val adapter: ListRecyclerAdapter, val listViewModel: ListViewMo
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnAddItem.setOnClickListener {
-            val newItem = ListItem(1, binding.etItemName.text.toString())
-            //adapter.addItem(newItem)
+            val newItem = ListItem(listViewModel.itemCount+1, binding.etItemName.text.toString())
             listViewModel.insert(newItem)
-            adapter.notifyItemInserted(listViewModel.itemCount-1)
+            //listViewModel.deleteAll()
             dismiss()
         }
 

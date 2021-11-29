@@ -22,4 +22,7 @@ interface ItemDao {
 
     @Query("DELETE FROM item")
     fun deleteAllItems()
+
+    @Query("SELECT COUNT(*) FROM item")
+    fun getItemCount(): Int
 }
