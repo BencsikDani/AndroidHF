@@ -2,9 +2,7 @@ package hu.bdz.grabber.ui.list
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -23,6 +21,11 @@ class ListFragment : Fragment(), ListRecyclerAdapter.ItemClickListener {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
@@ -57,8 +60,8 @@ class ListFragment : Fragment(), ListRecyclerAdapter.ItemClickListener {
 
     override fun onItemClick(item: ListItem) {
         item.bought = item.bought != true
-        adapter.notifyItemChanged(item.id-1)
         listViewModel.update(item)
+        adapter.notifyDataSetChanged()
     }
 
     override fun onItemLongClick(position: Int, view: View, _item: ListItem): Boolean {
@@ -71,10 +74,26 @@ class ListFragment : Fragment(), ListRecyclerAdapter.ItemClickListener {
                     listViewModel.delete(_item)
                     return@setOnMenuItemClickListener true
                 }
+                R.id.edit -> {
+                    EditFragment(listViewModel, _item).show(childFragmentManager, EditFragment.TAG)
+                    return@setOnMenuItemClickListener true
+                }
             }
             false
         }
         popup.show()
         return false
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_list, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.deleteBought) {
+            listViewModel.deleteBought()
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

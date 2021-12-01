@@ -8,6 +8,9 @@ interface ItemDao {
     @Insert
     fun insertItem(item: RoomItem)
 
+    @Query("SELECT * FROM item WHERE id == :id")
+    fun getItemById(id: Int?): RoomItem?
+
     @Query("SELECT * FROM item")
     fun getAllItems(): LiveData<List<RoomItem>>
 
@@ -17,8 +20,8 @@ interface ItemDao {
     @Delete
     fun deleteItem(item: RoomItem)
 
-    @Query("SELECT * FROM item WHERE id == :id")
-    fun getItemById(id: Int?): RoomItem?
+    @Query("DELETE FROM item WHERE bought == 1")
+    fun deleteBoughtItems()
 
     @Query("DELETE FROM item")
     fun deleteAllItems()

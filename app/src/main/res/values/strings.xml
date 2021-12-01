@@ -13,5 +13,8 @@
     <string name="lblQuantity">Mennyiség:</string>
     <string name="lblItemCategory">Kategória:</string>
     <string name="lblNote">Megjegyzés:</string>
+    <string name="menuItemEdit">Szerkesztés</string>
+    <string name="menuItemDelete">Törlés</string>
+    <string name="listDeleteBought">Megvettek törlése</string>
 
 </resources>

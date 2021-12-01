@@ -56,6 +56,11 @@ class ListViewModel : ViewModel() {
         itemCount--
     }
 
+    fun deleteBought() = viewModelScope.launch {
+        repository.deleteBought()
+        itemCount = repository.getItemCount()
+    }
+
     fun deleteAll() = viewModelScope.launch {
         repository.deleteAll()
         itemCount = 0

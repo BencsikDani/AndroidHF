@@ -39,6 +39,10 @@ class Repository(private val itemDao: ItemDao) {
         itemDao.deleteItem(roomItem)
     }
 
+    suspend fun deleteBought() = withContext(Dispatchers.IO) {
+        itemDao.deleteBoughtItems()
+    }
+
     suspend fun deleteAll() = withContext(Dispatchers.IO) {
         itemDao.deleteAllItems()
     }
