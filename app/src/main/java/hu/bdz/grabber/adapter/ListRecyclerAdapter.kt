@@ -1,6 +1,8 @@
 package hu.bdz.grabber.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,6 +12,8 @@ import hu.bdz.grabber.model.ListItem
 
 class ListRecyclerAdapter : ListAdapter<ListItem, ListRecyclerAdapter.ViewHolder>(itemCallback)
 {
+    var itemClickListener: ItemClickListener? = null
+
     companion object{
         object itemCallback : DiffUtil.ItemCallback<ListItem>(){
             override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
@@ -30,11 +34,27 @@ class ListRecyclerAdapter : ListAdapter<ListItem, ListRecyclerAdapter.ViewHolder
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = this.getItem(position)
-        holder.tvText.text = currentItem.id.toString() + ". - " + currentItem.text
+
+        holder.item = currentItem
+        holder.binding.itemText.text = currentItem.text
     }
 
     inner class ViewHolder(val binding: LayoutListItemBinding) : RecyclerView.ViewHolder(binding.root)
     {
-        var tvText = binding.itemText
+        var item: ListItem? = null
+
+        init {
+            itemView.setOnLongClickListener { view ->
+                item?.let { item ->
+                    itemClickListener?.onItemLongClick(bindingAdapterPosition, view, item)
+                }
+                true
+            }
+        }
+    }
+
+    interface ItemClickListener {
+        fun onItemClick(item: ListItem)
+        fun onItemLongClick(position: Int, view: View, item: ListItem): Boolean
     }
 }

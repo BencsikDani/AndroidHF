@@ -1,15 +1,12 @@
 package hu.bdz.grabber.ui.list
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import hu.bdz.grabber.adapter.ListRecyclerAdapter
 import hu.bdz.grabber.databinding.FragmentAddBinding
 import hu.bdz.grabber.model.ListItem
-import kotlin.random.Random
 
 class AddFragmet(val listViewModel: ListViewModel): DialogFragment()
 {
@@ -32,7 +29,7 @@ class AddFragmet(val listViewModel: ListViewModel): DialogFragment()
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnAddItem.setOnClickListener {
-            val newItem = ListItem(listViewModel.itemCount+1, binding.etItemName.text.toString())
+            val newItem = ListItem(binding.etItemName.text.toString())
             listViewModel.insert(newItem)
             //listViewModel.deleteAll()
             dismiss()
