@@ -1,6 +1,5 @@
 package hu.bdz.grabber.repository
 
-import android.content.ClipData
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import hu.bdz.grabber.database.ItemDao
@@ -43,14 +42,24 @@ class Repository(private val itemDao: ItemDao) {
     private fun RoomItem.toDomainModel(): ListItem {
         return ListItem(
             id = id,
-            text = text
+            name = name,
+            brand = brand,
+            quantity = quantity,
+            category = category,
+            note = note,
+            bought = bought
         )
     }
 
     private fun ListItem.toRoomModel(): RoomItem {
         return RoomItem(
             id = id,
-            text = text
+            name = name,
+            brand = brand,
+            quantity = quantity,
+            category = category,
+            note = note,
+            bought = bought
         )
     }
 }

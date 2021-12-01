@@ -13,4 +13,6 @@
     <color name="myBlue2">#0F4C75</color>
     <color name="myBlue3">#3282B8</color>
     <color name="myBlue4">#BBE1FA</color>
+    <color name="item_icon_color">#3282B8</color>
+    <color name="item_text_color">#FFFFFF</color>
 </resources>

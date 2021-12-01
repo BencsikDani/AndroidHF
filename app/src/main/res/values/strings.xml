@@ -9,5 +9,9 @@
     <string name="lblItemName">Termék neve:</string>
     <string name="btnOk">OK</string>
     <string name="btnCancel">Mégse</string>
+    <string name="lblItemBrand">Márka:</string>
+    <string name="lblQuantity">Mennyiség:</string>
+    <string name="lblItemCategory">Kategória:</string>
+    <string name="lblNote">Megjegyzés:</string>
 
 </resources>
