@@ -38,7 +38,7 @@ class ListRecyclerAdapter : ListAdapter<ListItem, ListRecyclerAdapter.ViewHolder
 
         holder.item = currentItem
 
-        holder.binding.checkBox.isChecked = false
+        holder.binding.checkBox.isChecked = currentItem.bought
         val image = when (currentItem.category) {
             ListItem.Category.GIFT -> R.drawable.ic_gift
             ListItem.Category.HEALTH -> R.drawable.ic_health
@@ -64,6 +64,12 @@ class ListRecyclerAdapter : ListAdapter<ListItem, ListRecyclerAdapter.ViewHolder
         var item: ListItem? = null
 
         init {
+            itemView.setOnClickListener {
+                item?.let {item ->
+                    itemClickListener?.onItemClick(item)
+                }
+            }
+
             itemView.setOnLongClickListener { view ->
                 item?.let { item ->
                     itemClickListener?.onItemLongClick(bindingAdapterPosition, view, item)

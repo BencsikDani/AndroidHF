@@ -47,6 +47,10 @@ class ListViewModel : ViewModel() {
         itemCount++
     }
 
+    fun update(item: ListItem) = viewModelScope.launch {
+        repository.update(item)
+    }
+
     fun delete(item: ListItem) = viewModelScope.launch {
         repository.delete(item)
         itemCount--

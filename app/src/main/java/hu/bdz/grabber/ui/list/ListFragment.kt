@@ -56,7 +56,9 @@ class ListFragment : Fragment(), ListRecyclerAdapter.ItemClickListener {
     }
 
     override fun onItemClick(item: ListItem) {
-        TODO("Not yet implemented")
+        item.bought = item.bought != true
+        adapter.notifyItemChanged(item.id-1)
+        listViewModel.update(item)
     }
 
     override fun onItemLongClick(position: Int, view: View, _item: ListItem): Boolean {

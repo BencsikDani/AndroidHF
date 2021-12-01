@@ -30,6 +30,10 @@ class Repository(private val itemDao: ItemDao) {
         itemDao.insertItem(item.toRoomModel())
     }
 
+    suspend fun update(item: ListItem) = withContext(Dispatchers.IO) {
+        itemDao.updateItem(item.toRoomModel())
+    }
+
     suspend fun delete(item: ListItem) = withContext(Dispatchers.IO) {
         val roomItem = itemDao.getItemById(item.id) ?: return@withContext
         itemDao.deleteItem(roomItem)
