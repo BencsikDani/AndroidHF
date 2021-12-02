@@ -15,6 +15,7 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import hu.bdz.grabber.databinding.ActivityMainBinding
+import hu.bdz.grabber.model.nearbysearch.Result
 import hu.bdz.grabber.service.LocationService
 
 class MainActivity : AppCompatActivity() {

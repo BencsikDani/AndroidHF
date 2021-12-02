@@ -1,6 +1,15 @@
-package hu.bdz.grabber.model.nearbysearch
+package hu.bdz.grabber.database.place.results
 
-data class Result(
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import hu.bdz.grabber.model.nearbysearch.Geometry
+import hu.bdz.grabber.model.nearbysearch.OpeningHours
+import hu.bdz.grabber.model.nearbysearch.Photo
+import hu.bdz.grabber.model.nearbysearch.PlusCode
+
+@Entity(tableName = "result")
+data class RoomResult(
+    @PrimaryKey(autoGenerate = true)
     val resultId: Int,
     val business_status: String,
     val geometry: Geometry,

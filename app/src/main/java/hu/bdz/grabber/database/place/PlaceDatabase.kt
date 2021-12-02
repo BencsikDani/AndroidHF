@@ -12,6 +12,9 @@ import hu.bdz.grabber.database.item.RoomItem
     exportSchema = false,
     entities = [RoomPlace::class]
 )
+@TypeConverters(
+    PlaceTypeConverter::class
+)
 abstract class PlaceDatabase : RoomDatabase() {
 
     abstract fun placeDao(): PlaceDao

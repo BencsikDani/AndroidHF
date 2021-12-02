@@ -61,14 +61,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mapFragment = childFragmentManager.findFragmentById(R.id.mvGoogleMap) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        updatePlaceDatabase()
+    }
 
+    fun updatePlaceDatabase() {
 //        val interceptor : HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
 //            level = HttpLoggingInterceptor.Level.BODY
 //        }
 //        val client : OkHttpClient = OkHttpClient.Builder().apply {
 //            addInterceptor(interceptor)
 //        }.build()
-
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://maps.googleapis.com/")
@@ -87,10 +89,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
 
             override fun onResponse(call: Call<NearbySearchResult>, response: Response<NearbySearchResult>) {
-                var gson = Gson()
-                val placesType = object: TypeToken<List<NearbySearchResult>>() {}.type
-                var _places = gson.fromJson<List<NearbySearchResult>>(response.body().toString(), placesType)
-                mapViewModel.insertMore(_places)
+                val places = Gson().fromJson(response.body().toString(), NearbySearchResult::class.java)
+                Log.d("PLACES............", places.toString())
             }
         })
     }
@@ -111,6 +111,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         googleMap.isMyLocationEnabled = true
         googleMap.isBuildingsEnabled = true
 
+
+
+
         val lat = LocationService.lastLocation.latitude
         val lng = LocationService.lastLocation.longitude
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 16F))
@@ -129,5 +132,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(it))
         }
+    }
+
+    fun drawMarker(googleMap: GoogleMap, place: NearbySearchResult) {
+//        googleMap.addMarker(MarkerOptions()
+//            .position(LatLng(place.results.geo)
+//            .title()
+//            .flat(false)
+//            .draggable(false)
+//        )
     }
 }
