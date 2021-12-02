@@ -2,18 +2,20 @@ package hu.bdz.grabber.database.place
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import hu.bdz.grabber.database.item.RoomItem
 
 @Dao
 interface PlaceDao {
     @Insert
     fun insertPlace(place: RoomPlace)
 
-    @Query("SELECT * FROM place WHERE id == :id")
+    @Query("SELECT * FROM place WHERE placeId == :id")
     fun getPlaceById(id: Int?): RoomPlace?
 
     @Query("SELECT * FROM place")
-    fun getAllPlaces(): LiveData<List<RoomPlace>>
+    fun getAllLivePlaces(): LiveData<List<RoomPlace>>
+
+    @Query("SELECT * FROM place")
+    fun getAllPlaces(): List<RoomPlace>
 
     @Update
     fun updatePlace(place: RoomPlace): Int

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -21,14 +22,18 @@ import com.google.gson.reflect.TypeToken
 import hu.bdz.grabber.MainActivity
 import hu.bdz.grabber.R
 import hu.bdz.grabber.databinding.FragmentMapBinding
+import hu.bdz.grabber.model.Place
 import hu.bdz.grabber.model.nearbysearch.NearbySearchResult
 import hu.bdz.grabber.retrofit.NearbySearchAPI
 import hu.bdz.grabber.service.LocationService
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -46,7 +51,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
-        mapViewModel.allPlaces.observe(viewLifecycleOwner, { places ->
+        mapViewModel.allLivePlaces.observe(viewLifecycleOwner, { places ->
             // TODO itt frissíteni kéne tán a térképet??
         })
 
@@ -74,7 +79,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://maps.googleapis.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create())
+            //.addConverterFactory(GsonConverterFactory.create())
             //.client(client)
             .build()
         val nearbyAPI = retrofit.create(NearbySearchAPI::class.java)
@@ -82,15 +88,31 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val lat = LocationService.lastLocation.latitude
         val lng = LocationService.lastLocation.longitude
         val formattedLocation: String = lat.toString() + ',' + lng.toString()
+
         val nearbyCall = nearbyAPI.getResults("bar", formattedLocation,  "1500", (activity as MainActivity).apiKey)
-        nearbyCall.enqueue(object: Callback<NearbySearchResult> {
-            override fun onFailure(call: Call<NearbySearchResult>, t: Throwable) {
+        nearbyCall.enqueue(object: Callback<String> {
+            override fun onFailure(call: Call<String>, t: Throwable) {
                 Toast.makeText(context, "A csatlakozás sikertelen: " + t.message, Toast.LENGTH_LONG).show()
             }
 
-            override fun onResponse(call: Call<NearbySearchResult>, response: Response<NearbySearchResult>) {
-                val places = Gson().fromJson(response.body().toString(), NearbySearchResult::class.java)
-                Log.d("PLACES............", places.toString())
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                val nearbySearchResult = Gson().fromJson(response.body().toString(), NearbySearchResult::class.java)
+                var places: MutableList<Place> = mutableListOf<Place>()
+
+                for ((i, result) in nearbySearchResult.results.withIndex()) {
+                    places.add(Place(
+                        0,
+                        nearbySearchResult.results[i].business_status,
+                        LatLng(nearbySearchResult.results[i].geometry.location.lat, nearbySearchResult.results[i].geometry.location.lng),
+                        nearbySearchResult.results[i].name,
+                        nearbySearchResult.results[i].types,
+                        nearbySearchResult.status
+                    ))
+                }
+                mapViewModel.insertMore(places)
+
+                mapViewModel.getPlaceCount()
+                mapViewModel.getAllPlaces()
             }
         })
     }

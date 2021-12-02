@@ -15,5 +15,5 @@ interface NearbySearchAPI {
         @Query("location") location: String,
         @Query("radius") radius: String,
         @Query("key") key: String
-    ) : Call<NearbySearchResult>
+    ) : Call<String>
 }

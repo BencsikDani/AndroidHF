@@ -29,7 +29,7 @@ class ListFragment : Fragment(), ListRecyclerAdapter.ItemClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         listViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
-        listViewModel.allItems.observe(viewLifecycleOwner, { items ->
+        listViewModel.allLiveItems.observe(viewLifecycleOwner, { items ->
             adapter.submitList(items)
         })
 

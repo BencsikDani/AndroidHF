@@ -1,5 +1,6 @@
 package hu.bdz.grabber.ui.list
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,55 +14,67 @@ class ListViewModel : ViewModel() {
 
     private val listRepository: ListRepository
 
-    var allItems: LiveData<List<ListItem>>
+    var allLiveItems: LiveData<List<ListItem>>
+    var allItems = mutableListOf<ListItem>()
+
     var itemCount: Int = 0
 
-    var returnedItem = MutableLiveData<ListItem>()
+    var returnedItem: ListItem? = null
 
     init {
         val itemDao = GrabberApplication.itemDatabase.itemDao()
         listRepository = ListRepository(itemDao)
-        allItems = listRepository.getAllItems()
+        allLiveItems = listRepository.getAllLiveItems()
         viewModelScope.launch {
             itemCount = listRepository.getItemCount()
         }
     }
 
-    fun getItem(id: Int)
-    {
+    fun getItem(id: Int) {
         viewModelScope.launch {
-            returnedItem.value = listRepository.getItem(id)
+            returnedItem = listRepository.getItemById(id)
         }
     }
 
-    fun getAllItems()
-    {
+    fun getAllLiveItems() {
+        viewModelScope.launch {
+            allLiveItems = listRepository.getAllLiveItems()
+        }
+    }
+
+    fun getAllItems() {
         viewModelScope.launch {
             allItems = listRepository.getAllItems()
         }
     }
 
+    fun getItemCount() {
+        viewModelScope.launch {
+            Log.d("ELEMEK_SZAMA:",listRepository.getItemCount().toString())
+        }
+    }
+
     fun insert(item: ListItem) = viewModelScope.launch {
-        listRepository.insert(item)
+        listRepository.insertItem(item)
         itemCount++
     }
 
     fun update(item: ListItem) = viewModelScope.launch {
-        listRepository.update(item)
+        listRepository.updateItem(item)
     }
 
     fun delete(item: ListItem) = viewModelScope.launch {
-        listRepository.delete(item)
+        listRepository.deleteItem(item)
         itemCount--
     }
 
     fun deleteBought() = viewModelScope.launch {
-        listRepository.deleteBought()
+        listRepository.deleteBoughtItems()
         itemCount = listRepository.getItemCount()
     }
 
     fun deleteAll() = viewModelScope.launch {
-        listRepository.deleteAll()
+        listRepository.deleteAllItems()
         itemCount = 0
     }
 }

@@ -12,7 +12,10 @@ interface ItemDao {
     fun getItemById(id: Int?): RoomItem?
 
     @Query("SELECT * FROM item")
-    fun getAllItems(): LiveData<List<RoomItem>>
+    fun getAllLiveItems(): LiveData<List<RoomItem>>
+
+    @Query("SELECT * FROM item")
+    fun getAllItems(): List<RoomItem>
 
     @Update
     fun updateItem(item: RoomItem): Int

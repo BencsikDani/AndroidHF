@@ -1,11 +1,12 @@
 package hu.bdz.grabber.ui.map
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.bdz.grabber.GrabberApplication
-import hu.bdz.grabber.model.ListItem
+import hu.bdz.grabber.model.Place
 import hu.bdz.grabber.model.nearbysearch.NearbySearchResult
 import hu.bdz.grabber.repository.PlaceRepository
 import kotlinx.coroutines.launch
@@ -14,15 +15,17 @@ class MapViewModel : ViewModel() {
 
     private val placeRepository: PlaceRepository
 
-    var allPlaces: LiveData<List<NearbySearchResult>>
+    var allLivePlaces: LiveData<List<Place>>
+    var allPlaces = mutableListOf<Place>()
+
     var placeCount: Int = 0
 
-    var returnedPlace = MutableLiveData<NearbySearchResult>()
+    var returnedPlace: Place? = null
 
     init {
         val placeDao = GrabberApplication.placeDatabase.placeDao()
         placeRepository = PlaceRepository(placeDao)
-        allPlaces = placeRepository.getAllPlaces()
+        allLivePlaces = placeRepository.getAllLivePlaces()
         viewModelScope.launch {
             placeCount = placeRepository.getPlaceCount()
         }
@@ -31,7 +34,12 @@ class MapViewModel : ViewModel() {
     fun getPlace(id: Int)
     {
         viewModelScope.launch {
-            returnedPlace.value = placeRepository.getPlace(id)
+            returnedPlace = placeRepository.getPlaceById(id)
+        }
+    }
+    fun getAllLivePlaces() {
+        viewModelScope.launch {
+            allLivePlaces = placeRepository.getAllLivePlaces()
         }
     }
 
@@ -39,30 +47,39 @@ class MapViewModel : ViewModel() {
     {
         viewModelScope.launch {
             allPlaces = placeRepository.getAllPlaces()
+            for ((i, place) in allPlaces.withIndex()) {
+                Log.d("${i}.ELEM: ", place.name)
+            }
         }
     }
 
-    fun insert(place: NearbySearchResult) = viewModelScope.launch {
-        placeRepository.insert(place)
+    fun getPlaceCount() {
+        viewModelScope.launch {
+            Log.d("ELEMEK_SZAMA: ",placeRepository.getPlaceCount().toString())
+        }
+    }
+
+    fun insert(place: Place) = viewModelScope.launch {
+        placeRepository.insertPlace(place)
         placeCount++
     }
 
-    fun insertMore(places: List<NearbySearchResult>) = viewModelScope.launch {
-        placeRepository.insertMore(places)
+    fun insertMore(places: List<Place>) = viewModelScope.launch {
+        placeRepository.insertMorePlaces(places)
         placeCount += places.size
     }
 
-    fun update(place: NearbySearchResult) = viewModelScope.launch {
-        placeRepository.update(place)
+    fun update(place: Place) = viewModelScope.launch {
+        placeRepository.updatePlace(place)
     }
 
-    fun delete(place: NearbySearchResult) = viewModelScope.launch {
-        placeRepository.delete(place)
+    fun delete(place: Place) = viewModelScope.launch {
+        placeRepository.deletePlace(place)
         placeCount--
     }
 
     fun deleteAll() = viewModelScope.launch {
-        placeRepository.deleteAll()
+        placeRepository.deleteAllPlaces()
         placeCount = 0
     }
 }
