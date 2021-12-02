@@ -26,6 +26,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        actionBar?.setIcon(R.drawable.ic_action_icon)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

@@ -20,7 +20,6 @@
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_weight="0.15"
-        android:src="@mipmap/ic_launcher"
         android:layout_marginRight="16dp"/>
 
     <LinearLayout

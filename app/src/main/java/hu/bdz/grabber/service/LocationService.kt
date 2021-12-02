@@ -61,7 +61,7 @@ class LocationService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             //.setContentTitle("Grabber")
             .setContentText(text)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_icon)
             .setVibrate(longArrayOf(1000, 2000, 1000))
             .setContentIntent(contentIntent)
             .build()
