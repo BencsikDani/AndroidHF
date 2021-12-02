@@ -16,5 +16,6 @@
     <string name="menuItemEdit">Szerkesztés</string>
     <string name="menuItemDelete">Törlés</string>
     <string name="listDeleteBought">Megvettek törlése</string>
+    <string name="lblLocation">Helymeghatározás engedélyezése:</string>
 
 </resources>

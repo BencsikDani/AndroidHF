@@ -24,7 +24,6 @@ class MapFragment : Fragment() {
     private val callback = OnMapReadyCallback { googleMap ->
         val schonherz = LatLng(47.4729685, 19.0527766)
         googleMap.addMarker(MarkerOptions().position(schonherz).title("Marker for Schönherz"))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(schonherz))
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(schonherz, 16F))
     }
 
