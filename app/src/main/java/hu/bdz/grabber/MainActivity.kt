@@ -11,10 +11,14 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.PlacesClient
 import hu.bdz.grabber.databinding.ActivityMainBinding
 import hu.bdz.grabber.service.LocationService
 
 class MainActivity : AppCompatActivity() {
+    val apiKey = "AIzaSyA64m1S-Q9KThDLAJqMVWrPC7pR4-Gmw-A"
 
     companion object {
         const val KEY_IS_LOCATION_SERVICE_RUNNING = "is_location_service_running"
@@ -23,6 +27,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     lateinit var locationService: LocationService
+        private set
+
+    lateinit var placesClient: PlacesClient
         private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +56,10 @@ class MainActivity : AppCompatActivity() {
 
         locationService = LocationService()
         resetLocationService()
+
+
+        Places.initialize(applicationContext, apiKey)
+        placesClient = Places.createClient(this)
     }
 
     fun resetLocationService() {

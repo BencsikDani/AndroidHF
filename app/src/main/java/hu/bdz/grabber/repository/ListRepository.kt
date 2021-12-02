@@ -2,13 +2,13 @@ package hu.bdz.grabber.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import hu.bdz.grabber.database.ItemDao
-import hu.bdz.grabber.database.RoomItem
+import hu.bdz.grabber.database.item.ItemDao
+import hu.bdz.grabber.database.item.RoomItem
 import hu.bdz.grabber.model.ListItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class Repository(private val itemDao: ItemDao) {
+class ListRepository(private val itemDao: ItemDao) {
 
     fun getAllItems(): LiveData<List<ListItem>> {
         return itemDao.getAllItems()

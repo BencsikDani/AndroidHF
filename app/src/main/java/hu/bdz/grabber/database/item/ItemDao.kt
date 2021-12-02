@@ -1,4 +1,4 @@
-package hu.bdz.grabber.database
+package hu.bdz.grabber.database.item
 
 import androidx.lifecycle.LiveData
 import androidx.room.*

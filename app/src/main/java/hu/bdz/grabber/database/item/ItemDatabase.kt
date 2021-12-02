@@ -1,4 +1,4 @@
-package hu.bdz.grabber.database
+package hu.bdz.grabber.database.item
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
