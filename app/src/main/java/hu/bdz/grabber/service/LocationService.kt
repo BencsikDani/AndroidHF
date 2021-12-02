@@ -6,19 +6,14 @@ import android.content.Intent
 import android.location.Location
 import android.os.Build
 import android.os.IBinder
-import android.preference.PreferenceManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.SettingsApi
 import hu.bdz.grabber.MainActivity
 import hu.bdz.grabber.R
 import hu.bdz.grabber.location.LocationHelper
-import android.app.ActivityManager
-
-
 
 
 class LocationService : Service() {
@@ -28,19 +23,19 @@ class LocationService : Service() {
         const val KEY_LOCATION = "KEY_LOCATION"
         const val NOTIFICATION_ID = 22
         const val CHANNEL_ID = "ForegroundServiceChannel"
+
+        lateinit var lastLocation: Location
+            private set
     }
 
     private var locationHelper: LocationHelper? = null
-
-    var lastLocation: Location? = null
-        private set
 
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForeground(NOTIFICATION_ID, createNotification("Helymeghatározás kezdése..."))
+        startForeground(NOTIFICATION_ID, createNotification("Helymeghatározás megkezdése..."))
 
         if (locationHelper == null) {
             val helper = LocationHelper(applicationContext, LocationServiceCalllback())
@@ -64,6 +59,7 @@ class LocationService : Service() {
             .setSmallIcon(R.drawable.ic_stat_icon)
             .setVibrate(longArrayOf(1000, 2000, 1000))
             .setContentIntent(contentIntent)
+            .setSilent(true)
             .build()
     }
 
@@ -94,18 +90,16 @@ class LocationService : Service() {
     inner class LocationServiceCalllback : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             val location = result.lastLocation ?: return
-            updateNotification("Lat: ${location.latitude} Lng: ${location.longitude}")
-
             lastLocation = location
 
-//            val intent = Intent()
-//            intent.action = BR_NEW_LOCATION
-//            intent.putExtra(KEY_LOCATION, location)
-//            LocalBroadcastManager.getInstance(this@LocationService).sendBroadcast(intent)
+            updateNotification("É.sz.: ${location.latitude}  K.h.: ${location.longitude}")
         }
 
         override fun onLocationAvailability(p0: LocationAvailability) {
-            updateNotification("Elérhető helyzet: ${p0.isLocationAvailable}")
+            if (p0.isLocationAvailable)
+                updateNotification("Az Ön helyzete elérhető!")
+            else
+                updateNotification("Elvesztettük a helyzetét.")
         }
     }
 }

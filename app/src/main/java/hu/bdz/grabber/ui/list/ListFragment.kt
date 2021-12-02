@@ -13,14 +13,13 @@ import hu.bdz.grabber.model.ListItem
 
 class ListFragment : Fragment(), ListRecyclerAdapter.ItemClickListener {
 
-    private lateinit var listViewModel: ListViewModel
     private var _binding: FragmentListBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var listViewModel: ListViewModel
 
     private lateinit var adapter: ListRecyclerAdapter
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
