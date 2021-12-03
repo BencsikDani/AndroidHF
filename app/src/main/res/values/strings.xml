@@ -17,5 +17,6 @@
     <string name="menuItemDelete">Törlés</string>
     <string name="listDeleteBought">Megvettek törlése</string>
     <string name="lblLocation">Helymeghatározás engedélyezése:</string>
+    <string name="refreshMap">Környék frissítése</string>
 
 </resources>

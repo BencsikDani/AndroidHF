@@ -49,6 +49,13 @@ class PlaceRepository(private val placeDao: PlaceDao) {
         placeDao.updatePlace(place.toRoomModel())
     }
 
+    suspend fun savePlaces(places: List<Place>) = withContext(Dispatchers.IO) {
+        placeDao.deleteAllPlaces()
+        for (place: Place in places) {
+            placeDao.insertPlace(place.toRoomModel())
+        }
+    }
+
     suspend fun deletePlace(place: Place) = withContext(Dispatchers.IO) {
         val roomPlace = placeDao.getPlaceById(place.placeId) ?: return@withContext
         placeDao.deletePlace(roomPlace)
