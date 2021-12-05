@@ -1,6 +1,7 @@
 package hu.bdz.grabber.ui.map
 
 import android.util.Log
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,7 +14,10 @@ import hu.bdz.grabber.model.nearbysearch.NearbySearchResult
 import hu.bdz.grabber.repository.PlaceRepository
 import hu.bdz.grabber.retrofit.NearbySearchAPI
 import hu.bdz.grabber.service.LocationService
+import hu.bdz.grabber.service.TypeCollector
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -25,26 +29,52 @@ class MapViewModel : ViewModel() {
     private val placeRepository: PlaceRepository
 
     var allLivePlaces: LiveData<List<Place>>
-    var allCachedPlaces = mutableListOf<Place>()
 
     var placeCount: Int = 0
-
     var returnedPlace: Place? = null
 
-    var cacheUpdated = MutableLiveData<Boolean>()
+
+    var allCachedPlaces = mutableListOf<Place>()
+
+    var typeToCache:Int = 0
+    var placeToCache: Int = 0
+
+    var placeCached: Int = 0
+    var typeCached: Int = 0
+
+    var allPlaceAreCached: MutableLiveData<Int>
+
+    //var placeOfThisType: MutableLiveData<Int>
+
 
     init {
         val placeDao = GrabberApplication.placeDatabase.placeDao()
         placeRepository = PlaceRepository(placeDao)
-
         allLivePlaces = placeRepository.getAllLivePlaces()
+        allPlaceAreCached = MutableLiveData(0)
         viewModelScope.launch {
             placeCount = placeRepository.getPlaceCount()
             Log.d("DBNUM", "${placeCount} db adat volt az adatbázisban.")
         }
     }
 
-    fun updateCache(apiKey: String) {
+    fun updateFullCache(placeTypes: List<String>, apiKey: String) {
+        allCachedPlaces = mutableListOf<Place>()
+        allPlaceAreCached.value = 0
+
+        placeCached = 0
+        typeCached = 0
+
+        typeToCache = placeTypes.size
+        placeToCache = 0 // később mindig frissül
+
+        for (placeType: String in placeTypes) {
+            updateOneType(placeType, apiKey)
+        }
+        return
+    }
+
+    fun updateOneType(placeType: String, apiKey: String) {
 //        val interceptor : HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
 //            level = HttpLoggingInterceptor.Level.BODY
 //        }
@@ -60,19 +90,19 @@ class MapViewModel : ViewModel() {
             .build()
         val nearbyAPI = retrofit.create(NearbySearchAPI::class.java)
 
-        val lat = LocationService.lastLocation.latitude
-        val lng = LocationService.lastLocation.longitude
+        val lat = LocationService.lastLocation?.latitude
+        val lng = LocationService.lastLocation?.longitude
         val formattedLocation: String = lat.toString() + ',' + lng.toString()
 
-        val nearbyCall = nearbyAPI.getResults("store", formattedLocation,  "500", apiKey)
+        val nearbyCall = nearbyAPI.getResults(placeType, formattedLocation,  "500", apiKey)
         nearbyCall.enqueue(object: Callback<String> {
             override fun onFailure(call: Call<String>, t: Throwable) {
-                cacheUpdated.value = false
+                allPlaceAreCached.value = -1
             }
 
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 val nearbySearchResult = Gson().fromJson(response.body().toString(), NearbySearchResult::class.java)
-
+                placeToCache += nearbySearchResult.results.size
                 for ((i, result) in nearbySearchResult.results.withIndex()) {
                     val temp = Place(
                         0,
@@ -82,10 +112,16 @@ class MapViewModel : ViewModel() {
                         nearbySearchResult.results[i].types,
                         nearbySearchResult.status
                     )
-                    if (temp !in allCachedPlaces)
+                    if (temp !in allCachedPlaces) {
                         allCachedPlaces.add(temp)
+                        placeCached++
+                    }
+                    else
+                        placeToCache--
                 }
-                cacheUpdated.value = true
+                typeCached++
+                if (typeCached == typeToCache && placeCached == placeToCache)
+                    allPlaceAreCached.value = 1
             }
         })
     }
@@ -95,9 +131,6 @@ class MapViewModel : ViewModel() {
             Log.d("${i}. HELY: ", place.name)
         }
     }
-
-
-
 
     fun getPlace(id: Int)
     {

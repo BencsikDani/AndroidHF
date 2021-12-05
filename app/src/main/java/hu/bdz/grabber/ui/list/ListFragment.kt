@@ -5,21 +5,30 @@ import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import hu.bdz.grabber.MainActivity
 import hu.bdz.grabber.R
 import hu.bdz.grabber.adapter.ListRecyclerAdapter
 import hu.bdz.grabber.databinding.FragmentListBinding
 import hu.bdz.grabber.model.ListItem
+import hu.bdz.grabber.ui.map.MapFragment
 
 class ListFragment : Fragment(), ListRecyclerAdapter.ItemClickListener {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var listViewModel: ListViewModel
-
     private lateinit var adapter: ListRecyclerAdapter
 
+    companion object {
+        private lateinit var listViewModel: ListViewModel
+        var allLiveItems: MutableLiveData<List<ListItem>> = MutableLiveData()
+//        fun getAllListItems() {
+//            listViewModel.getAllLiveItems()
+//        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,10 +37,12 @@ class ListFragment : Fragment(), ListRecyclerAdapter.ItemClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        listViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
-        listViewModel.allLiveItems.observe(viewLifecycleOwner, { items ->
+        listViewModel = ViewModelProvider(activity as MainActivity).get(ListViewModel::class.java)
+        listViewModel.allLiveItems?.observe(viewLifecycleOwner, { items ->
             adapter.submitList(items)
+            ListFragment.allLiveItems.value = items
         })
+
 
         _binding = FragmentListBinding.inflate(inflater, container, false)
         val root: View = binding.root

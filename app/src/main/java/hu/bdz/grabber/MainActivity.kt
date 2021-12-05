@@ -2,21 +2,21 @@ package hu.bdz.grabber
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import hu.bdz.grabber.databinding.ActivityMainBinding
-import hu.bdz.grabber.model.nearbysearch.Result
+import hu.bdz.grabber.model.ListItem
 import hu.bdz.grabber.service.LocationService
+import hu.bdz.grabber.service.TypeCollector
+import hu.bdz.grabber.ui.map.MapFragment
+import hu.bdz.grabber.ui.list.ListFragment
 
 class MainActivity : AppCompatActivity() {
     val apiKey = "AIzaSyA64m1S-Q9KThDLAJqMVWrPC7pR4-Gmw-A"
@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var placesClient: PlacesClient
         private set
+
+    private var allItems: List<ListItem> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +63,10 @@ class MainActivity : AppCompatActivity() {
 
         Places.initialize(applicationContext, apiKey)
         placesClient = Places.createClient(this)
+
+        ListFragment.allLiveItems.observe(this, { items ->
+            allItems = items
+        })
     }
 
     fun resetLocationService() {
@@ -73,5 +79,10 @@ class MainActivity : AppCompatActivity() {
         if (isLocationServiceRunning) {
             startService(intent)
         }
+    }
+
+    fun beginPlaceMagic() {
+        val placeTypes = TypeCollector.getMergedPlaceTypesFromListItems(allItems)
+        MapFragment.beginUpdatingFullCache(placeTypes, apiKey)
     }
 }

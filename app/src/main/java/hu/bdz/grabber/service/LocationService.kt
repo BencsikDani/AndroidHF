@@ -21,10 +21,11 @@ class LocationService : Service() {
     companion object {
         const val BR_NEW_LOCATION = "BR_NEW_LOCATION"
         const val KEY_LOCATION = "KEY_LOCATION"
-        const val NOTIFICATION_ID = 22
+        const val NOTIFICATION1_ID = 22
         const val CHANNEL_ID = "ForegroundServiceChannel"
+        const val NOTIFICATION2_ID = 23
 
-        lateinit var lastLocation: Location
+        var lastLocation: Location? = null
             private set
     }
 
@@ -35,7 +36,7 @@ class LocationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForeground(NOTIFICATION_ID, createNotification("Helymeghatározás megkezdése..."))
+        startForeground(NOTIFICATION1_ID, createNotification("Helymeghatározás megkezdése..."))
 
         if (locationHelper == null) {
             val helper = LocationHelper(applicationContext, LocationServiceCalllback())
@@ -51,10 +52,10 @@ class LocationService : Service() {
 
         createNotificationChannel()
 
-        val contentIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+        val contentIntent = PendingIntent.getActivity(this, NOTIFICATION1_ID, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            //.setContentTitle("Grabber")
+            .setContentTitle("Grabber helymeghatározás")
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_stat_icon)
             .setVibrate(longArrayOf(1000, 2000, 1000))
@@ -78,7 +79,7 @@ class LocationService : Service() {
     private fun updateNotification(text: String) {
         val notification = createNotification(text)
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(NOTIFICATION1_ID, notification)
     }
 
     override fun onDestroy() {

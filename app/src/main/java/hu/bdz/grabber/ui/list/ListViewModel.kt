@@ -15,6 +15,8 @@ class ListViewModel : ViewModel() {
     private val listRepository: ListRepository
 
     var allLiveItems: LiveData<List<ListItem>>
+    //var liveItemUpdate = MutableLiveData<List<ListItem>>()
+
     var allItems = mutableListOf<ListItem>()
 
     var itemCount: Int = 0

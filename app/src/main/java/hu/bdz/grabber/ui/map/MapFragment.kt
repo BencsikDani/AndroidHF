@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.ListFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import hu.bdz.grabber.MainActivity
 import hu.bdz.grabber.R
 import hu.bdz.grabber.databinding.FragmentMapBinding
+import hu.bdz.grabber.model.ListItem
 import hu.bdz.grabber.model.Place
 import hu.bdz.grabber.service.LocationService
 
@@ -26,9 +28,39 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
 
     private lateinit var mapFragment: SupportMapFragment
-    private lateinit var mapViewModel: MapViewModel
 
-    private lateinit var googleMap: GoogleMap
+    private var googleMap: GoogleMap? = null
+
+    companion object {
+        private var isMapReady = false
+        private lateinit var mapViewModel: MapViewModel
+
+        fun beginUpdatingFullCache(placeTypes: List<String>, apiKey: String) {
+            mapViewModel.updateFullCache(placeTypes, apiKey)
+//            val tmp = listOf<String>("store")
+//            mapViewModel.updateFullCache(tmp, apiKey)
+        }
+
+        fun redrawMarkers(map: GoogleMap, places: MutableList<Place>) : Int {
+            var done = 0
+            if (isMapReady) {
+                map.clear()
+                for (place in places) {
+                    map.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(place.location.latitude, place.location.longitude))
+                            .title(place.name)
+                            .snippet(place.types.toString())
+                            .flat(false)
+                            .draggable(false)
+                    )
+                    done++
+                }
+            }
+            return done
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,19 +69,19 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
+        mapViewModel = ViewModelProvider(activity as MainActivity).get(MapViewModel::class.java)
         mapViewModel.allLivePlaces.observe(viewLifecycleOwner, {
             // TODO dunno
         })
-        mapViewModel.cacheUpdated.observe(viewLifecycleOwner, { apiResponse ->
-            apiResponse?.let {
-                val result = mapViewModel.cacheUpdated.value
-                mapViewModel.cacheUpdated.value = null
-                if (result == true) {
-                    redrawMarkers(googleMap, mapViewModel.allCachedPlaces)
-                    Toast.makeText(context, "${mapViewModel.allCachedPlaces.size} db találat!", Toast.LENGTH_LONG).show()
+        mapViewModel.allPlaceAreCached.observe(viewLifecycleOwner, { state ->
+            if (googleMap != null)
+            {
+                if (state == 0) {}
+                else if (state == 1) {
+                    redrawMarkers(googleMap!!, mapViewModel.allCachedPlaces)
+                    Toast.makeText(context, "${mapViewModel.placeCached} db találat!", Toast.LENGTH_SHORT).show()
                 }
-                else if (result == false)
+                else if (state == -1)
                     Toast.makeText(context, "A csatlakozás sikertelen!", Toast.LENGTH_LONG).show()
             }
         })
@@ -62,7 +94,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mapFragment = childFragmentManager.findFragmentById(R.id.mvGoogleMap) as SupportMapFragment
+        mapFragment = childFragmentManager.findFragmentById(R.id.frMap) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
@@ -78,7 +110,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         isMapReady = true
         this.googleMap = googleMap
 
-        mapViewModel.updateCache((activity as MainActivity).apiKey)
+        if (LocationService.lastLocation != null)
+        {
+            (activity as MainActivity).beginPlaceMagic()
+        }
 
         googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context?.applicationContext!!, R.raw.map_style_json))
         googleMap.setPadding(20, 20, 20, 20)
@@ -89,9 +124,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         googleMap.isMyLocationEnabled = true
         googleMap.isBuildingsEnabled = true
 
-        val lat = LocationService.lastLocation.latitude
-        val lng = LocationService.lastLocation.longitude
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 16F))
+        if (LocationService.lastLocation != null)
+        {
+            val lat = LocationService.lastLocation!!.latitude
+            val lng = LocationService.lastLocation!!.longitude
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 16F))
+        }
 
         googleMap.setOnMapLongClickListener {
 
@@ -104,28 +142,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             markerHU?.isDraggable = true
 
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(it))
-        }
-    }
 
-    companion object {
-        private var isMapReady = false
-
-        fun redrawMarkers(map: GoogleMap, places: MutableList<Place>) : Int {
-            var done = 0
-            if (isMapReady) {
-                map.clear()
-                for (place in places) {
-                    map.addMarker(
-                        MarkerOptions()
-                            .position(LatLng(place.location.latitude, place.location.longitude))
-                            .title(place.name)
-                            .flat(false)
-                            .draggable(false)
-                    )
-                    done++
-                }
-            }
-            return done
+            (activity as MainActivity).beginPlaceMagic()
         }
     }
 
@@ -137,7 +155,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.refreshMap -> {
-                mapViewModel.updateCache((activity as MainActivity).apiKey)
+                //mapViewModel.updateCache("store", (activity as MainActivity).apiKey)
             }
         }
         return true
