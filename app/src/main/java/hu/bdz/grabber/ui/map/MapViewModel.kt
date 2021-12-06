@@ -1,7 +1,6 @@
 package hu.bdz.grabber.ui.map
 
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,15 +13,14 @@ import hu.bdz.grabber.model.nearbysearch.NearbySearchResult
 import hu.bdz.grabber.repository.PlaceRepository
 import hu.bdz.grabber.retrofit.NearbySearchAPI
 import hu.bdz.grabber.service.LocationService
-import hu.bdz.grabber.service.TypeCollector
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.lang.Math.abs
+import java.lang.Math.sqrt
 
 class MapViewModel : ViewModel() {
 
@@ -44,7 +42,10 @@ class MapViewModel : ViewModel() {
 
     var allPlaceAreCached: MutableLiveData<Int>
 
-    //var placeOfThisType: MutableLiveData<Int>
+    var minDistanceFromMe: Double = -1.0
+    var minDistancePlace: Place? = null
+
+
 
 
     init {
@@ -99,19 +100,19 @@ class MapViewModel : ViewModel() {
             override fun onFailure(call: Call<String>, t: Throwable) {
                 allPlaceAreCached.value = -1
             }
-
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 val nearbySearchResult = Gson().fromJson(response.body().toString(), NearbySearchResult::class.java)
                 placeToCache += nearbySearchResult.results.size
-                for ((i, result) in nearbySearchResult.results.withIndex()) {
+                for (result in nearbySearchResult.results) {
                     val temp = Place(
                         0,
-                        nearbySearchResult.results[i].business_status,
-                        LatLng(nearbySearchResult.results[i].geometry.location.lat, nearbySearchResult.results[i].geometry.location.lng),
-                        nearbySearchResult.results[i].name,
-                        nearbySearchResult.results[i].types,
+                        result.business_status,
+                        LatLng(result.geometry.location.lat, result.geometry.location.lng),
+                        result.name,
+                        result.types,
                         nearbySearchResult.status
                     )
+                    refreshMinPlace(temp)
                     if (temp !in allCachedPlaces) {
                         allCachedPlaces.add(temp)
                         placeCached++
@@ -177,5 +178,23 @@ class MapViewModel : ViewModel() {
     fun deleteAll() = viewModelScope.launch {
         placeRepository.deleteAllPlaces()
         placeCount = 0
+    }
+
+    fun refreshMinPlace(place: Place) {
+        val distance = calcDistanceFromMe(place.location)
+        if (minDistanceFromMe == -1.0 || distance < minDistanceFromMe){
+            minDistanceFromMe = distance
+            minDistancePlace = place
+        }
+    }
+
+    fun calcDistanceFromMe(loc: LatLng): Double {
+        val currLoc = LocationService.lastLocation
+        if (currLoc != null) {
+            val a = abs(loc.latitude - currLoc.latitude)
+            val b = abs(loc.longitude - currLoc.longitude)
+            return sqrt(a*a - b*b)
+        }
+        return -1.0
     }
 }

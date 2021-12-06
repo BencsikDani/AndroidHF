@@ -57,6 +57,7 @@ class ListRecyclerAdapter : ListAdapter<ListItem, ListRecyclerAdapter.ViewHolder
         holder.binding.tvItemName.text = currentItem.name
         holder.binding.tvItemBrand.text = currentItem.brand
         holder.binding.tvItemQuantity.text = currentItem.quantity
+        holder.binding.tvNotes.text = currentItem.note
     }
 
     inner class ViewHolder(val binding: LayoutListItemBinding) : RecyclerView.ViewHolder(binding.root)

@@ -49,8 +49,7 @@ class TypeCollector {
                     "shopping_mall",
                     "supermarket")
             else if (category == ListItem.Category.ELECTRONICS)
-                return listOf("department_store",
-                    "electronics_store",
+                return listOf("electronics_store",
                     "hardware_store",
                     "shopping_mall")
             else if (category == ListItem.Category.FOOD)
@@ -62,13 +61,11 @@ class TypeCollector {
                     "shopping_mall",
                     "supermarket")
             else if (category == ListItem.Category.FILM_MUSIC)
-                return listOf("department_store",
-                    "electronics_store",
+                return listOf("electronics_store",
                     "movie_rental",
                     "shopping_mall")
             else if (category == ListItem.Category.PET)
                 return listOf("convenience_store",
-                    "department_store",
                     "pet_store",
                     "shopping_mall")
             else if (category == ListItem.Category.HOBBY)
@@ -84,21 +81,17 @@ class TypeCollector {
                 return listOf("department_store",
                     "shopping_mall")
             else if (category == ListItem.Category.HOME_HOUSEHOLD)
-                return listOf("department_store",
-                    "electronics_store",
+                return listOf("electronics_store",
                     "furniture_store",
                     "hardware_store",
-                    "shopping_mall",
-                    "supermarket")
+                    "shopping_mall",)
             else if (category == ListItem.Category.CLOTHING)
                 return listOf("clothing_store",
-                    "department_store",
                     "jewelry_store",
                     "shoe_store",
                     "shopping_mall")
             else if (category == ListItem.Category.SPORT)
                 return listOf("bicycle_store",
-                    "department_store",
                     "shopping_mall")
             else
                 return emptyList<String>()

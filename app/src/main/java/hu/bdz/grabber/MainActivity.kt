@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun beginPlaceMagic() {
+    fun beginDisplayAllRelatedPlaces() {
         val placeTypes = TypeCollector.getMergedPlaceTypesFromListItems(allItems)
         MapFragment.beginUpdatingFullCache(placeTypes, apiKey)
     }
