@@ -10,6 +10,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
@@ -40,14 +41,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             if (isMapReady) {
                 map.clear()
                 for (place in places) {
-                    map.addMarker(
-                        MarkerOptions()
-                            .position(LatLng(place.location.latitude, place.location.longitude))
-                            .title(place.name)
-                            .snippet(place.types.toString())
-                            .flat(false)
-                            .draggable(false)
-                    )
+                    var mo = MarkerOptions()
+                                .position(LatLng(place.location.latitude, place.location.longitude))
+                                .title(place.name)
+                                .snippet(place.types.toString())
+                                .flat(false)
+                                .draggable(false)
+                    if (place == mapViewModel.minDistancePlace)
+                        mo.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                    map.addMarker(mo)
                     done++
                 }
             }

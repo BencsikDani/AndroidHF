@@ -69,6 +69,9 @@ class MapViewModel : ViewModel() {
         typeToCache = placeTypes.size
         placeToCache = 0 // később mindig frissül
 
+        minDistanceFromMe = -1.0
+        minDistancePlace = null
+
         for (placeType: String in placeTypes) {
             updateOneType(placeType, apiKey)
         }
@@ -182,6 +185,8 @@ class MapViewModel : ViewModel() {
 
     fun refreshMinPlace(place: Place) {
         val distance = calcDistanceFromMe(place.location)
+        if (distance == -1.0)
+            return
         if (minDistanceFromMe == -1.0 || distance < minDistanceFromMe){
             minDistanceFromMe = distance
             minDistancePlace = place
@@ -193,7 +198,7 @@ class MapViewModel : ViewModel() {
         if (currLoc != null) {
             val a = abs(loc.latitude - currLoc.latitude)
             val b = abs(loc.longitude - currLoc.longitude)
-            return sqrt(a*a - b*b)
+            return sqrt(a*a + b*b)
         }
         return -1.0
     }
